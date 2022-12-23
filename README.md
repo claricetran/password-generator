@@ -31,7 +31,7 @@ The number question will prompt like so:
 ![number question prompt](./assets/images/numbersQ.PNG)
 
 The special characters question will prompt like so:
-![special characters question prompt](./assets/images/numbersQ.PNG)
+![special characters question prompt](./assets/images/specialQ.PNG)
 
 After each prompt, the user will get a confirmation prompt.
 ![confirmation alert](./assets/images/confirmation.PNG)
