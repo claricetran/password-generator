@@ -34,10 +34,14 @@ function generatePassword() {
 		ranges: [65, 90],
 	};
 	// number criteria object
-	// 48-57 decimal values are numbers
-	let numbers = { bool: false, fill: "numbers", ranges: [48, 57] };
+	// 48-57 decimal values are numbs
+	let numbs = {
+		bool: false,
+		fill: "numbers",
+		ranges: [48, 57],
+	};
 	// special character criteria object
-	// 33-47, 58-64, 91-96, 123-126 are special characters. under assumption that even indexes are start of range and odd are end of range.
+	// 32-47, 58-64, 91-96, 123-126 are special characters. under assumption that even indexes are start of range and odd are end of range.
 	let specialChar = {
 		bool: false,
 		fill: "special characters",
@@ -66,14 +70,14 @@ function generatePassword() {
 		}
 	}
 
-	var criteria = [lower, upper, numbers, specialChar];
+	var criteria = [lower, upper, numbs, specialChar];
 	// While all the criteria are not chosen, the user will be asked to select at least one of the following criteria.
 	//TODO: prompt in the following order - lowercase, uppercase, numberic, and/or special characters.
 	// edge case - no is selected for all chars
 	while (
 		lower.bool === false &&
 		upper.bool === false &&
-		numbers.bool === false &&
+		numbs.bool === false &&
 		specialChar.bool === false
 	) {
 		alert("Please select one of the following criteria by indicating OK (yes) or cancel (no).");
@@ -85,9 +89,9 @@ function generatePassword() {
 
 	// charOptions will be array containing the decimal values of the needed characters
 	var charOptions = new Array();
-	// Grabs range of numbers and puts the full range into charOptions array
-	function addChars(x, y) {
-		for (i = x; i <= y; i++) {
+	// Grabs range of numbs and puts the full range into charOptions array
+	function addChars(startRange, endRange) {
+		for (i = startRange; i <= endRange; i++) {
 			charOptions.push(i);
 		}
 	}
@@ -101,32 +105,28 @@ function generatePassword() {
 		addChars(upper.ranges[0], upper.ranges[1]);
 	}
 
-	if (numbers.bool) {
-		addChars(numbers.ranges[0], upper.ranges[1]);
+	if (numbs.bool) {
+		addChars(numbs.ranges[0], numbs.ranges[1]);
 	}
 	//special characters needs for loop to add multiple ranges
 	if (specialChar.bool) {
-		for (i = 0; i < specialChar.ranges.length; i += 2) {
-			addChars(specialChar.ranges[i], specialChar.ranges[i + 1]);
+		for (index = 0; index < specialChar.ranges.length; index += 2) {
+			addChars(specialChar.ranges[index], specialChar.ranges[index + 1]);
 		}
 	}
-
-	// Check in console if correct character values are included.
-	// var charOptionsPrint = charOptions.values();
-	// for (let numbers of charOptions) {
-	// 	console.log(numbers);
-	// }
 
 	var password = "";
 	function grabChars() {
 		var pwArray = [];
 		for (i = 0; i < passwordLength; i++) {
 			pwArray.push(charOptions[Math.floor(Math.random() * charOptions.length)]);
-			// console.log(pwArray);
 		}
 		if (!criteriaCheck(criteria, pwArray)) {
+			// Resets password to be empty and generates new password if requirements are not met
+			password = "";
 			grabChars();
 		} else {
+			// All requirements are met. Password is created to print
 			pwArray.forEach((letter) => {
 				password = password + String.fromCharCode(letter);
 			});
@@ -135,36 +135,32 @@ function generatePassword() {
 
 	grabChars();
 
-	//TODO: Add check to be sure the selected criteria were used since random could have skipped a criteria. check all ch ar
-
-	// let specialChar = {
-	// 	bool: false,
-	// 	fill: "special characters",
-	// 	ranges: [32, 47, 58, 64, 91, 96, 123, 126],
-	// };
+	//TODO: Add check to be sure the selected criteria were used since random could have skipped a criteria.
 	function criteriaCheck(criterias, currPW) {
-		var check;
-		criterias.forEach((crit) => {
-			if (crit.bool) {
+		for (crit = 0; crit < criterias.length; crit++) {
+			if (criterias[crit].bool) {
 				var criteriaArray = [];
-				for (rangeIndex = 0; rangeIndex < crit.ranges.length; rangeIndex += 2) {
+				for (rangeIndex = 0; rangeIndex < criterias[crit].ranges.length; rangeIndex += 2) {
 					for (
-						addCritDV = crit.ranges[rangeIndex];
-						addCritDV <= crit.ranges[rangeIndex + 1];
+						addCritDV = criterias[crit].ranges[rangeIndex];
+						addCritDV <= criterias[crit].ranges[rangeIndex + 1];
 						addCritDV++
 					) {
 						// Adds all needed decimal values that are in the used criteria
 						criteriaArray.push(addCritDV);
 					}
-					// console.log(criteriaArray);
 				}
-				check = criteriaArray.filter((c) => currPW.indexOf(c) !== -1);
-				if (check == -1) {
+				// comparison check array. if no comaprisons then array will be empty
+				var check = criteriaArray.filter((c) => currPW.indexOf(c) !== -1);
+				// if check array is empty then return false.
+				if (check.length === 0) {
 					return false;
 				}
 			}
-		});
+		}
+		// if all requirements are met then return true.
 		return true;
 	}
+
 	return password;
 }
